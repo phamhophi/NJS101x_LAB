@@ -5,8 +5,9 @@
 // Lab 1.2: Tạo Node Server
 const http = require("http");
 
-const sever = http.createServer((req, res) => {
+const server = http.createServer((req, res) => {
   console.log(req);
 });
 
-server.listen();
+server.listen(3000);
+//test
