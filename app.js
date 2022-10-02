@@ -8,16 +8,16 @@ const server = http.createServer((req, res) => {
     res.write("<html>");
     res.write("<head><title>Enter Message</title></head>");
     res.write(
-      "<body><form action='/message method='POST'><input type='text'><button type='submit'>Send</button></form></body>"
+      "<body><form action='/message' method='POST'><input type='text'><button type='submit'>Send</button></form></body>"
     );
     res.write("</html>");
     return res.end();
   }
 
   if (url === "/message" && method === "POST") {
-    fs.writeFile("message.text", "DUMMY");
+    fs.writeFileSync("message.text", "DUMMY");
     res.statusCode = 302;
-    res.writeHead("Location", "/");
+    res.setHeader("Location", "/");
     return res.end();
   }
 
