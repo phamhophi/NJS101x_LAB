@@ -1,0 +1,24 @@
+{
+  "name": "njs101x_lab",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "start-server": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phamhophi/NJS101x_LAB.git"
+  },
+  "author": "Pham Ho Phi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/phamhophi/NJS101x_LAB/issues"
+  },
+  "homepage": "https://github.com/phamhophi/NJS101x_LAB#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
