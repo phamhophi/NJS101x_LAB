@@ -5,7 +5,10 @@ const express = require("express");
 
 const app = express();
 
-console.log(routes.someText);
+app.use((req, res, next) => {
+  console.log("In the middleware");
+});
+
 const server = http.createServer(routes.handler);
 
 server.listen(3000);
