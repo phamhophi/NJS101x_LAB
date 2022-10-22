@@ -6,14 +6,14 @@ const PDFDocument = require("pdfkit");
 const Product = require("../models/product");
 const Order = require("../models/order");
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 1;
 
 exports.getProducts = (req, res, next) => {
   const page = +req.query.page || 1;
   let totalItems;
 
   Product.find()
-    .countDocuments()
+    .count()
     .then((numProducts) => {
       totalItems = numProducts;
       return Product.find()
@@ -62,7 +62,7 @@ exports.getIndex = (req, res, next) => {
   let totalItems;
 
   Product.find()
-    .countDocuments()
+    .count()
     .then((numProducts) => {
       totalItems = numProducts;
       return Product.find()
@@ -92,7 +92,6 @@ exports.getIndex = (req, res, next) => {
 exports.getCart = (req, res, next) => {
   req.user
     .populate("cart.items.productId")
-    // .execPopulate()
     .then((user) => {
       const products = user.cart.items;
       res.render("shop/cart", {
@@ -142,7 +141,6 @@ exports.postCartDeleteProduct = (req, res, next) => {
 exports.postOrder = (req, res, next) => {
   req.user
     .populate("cart.items.productId")
-    .execPopulate()
     .then((user) => {
       const products = user.cart.items.map((i) => {
         return { quantity: i.quantity, product: { ...i.productId._doc } };
@@ -157,7 +155,7 @@ exports.postOrder = (req, res, next) => {
       return order.save();
     })
     .then((result) => {
-      return req.user.clearCart();
+      req.user.clearCart();
     })
     .then(() => {
       res.redirect("/orders");
@@ -202,7 +200,7 @@ exports.getInvoice = (req, res, next) => {
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        'inline; filename="' + invoiceName + '"'
+        "inline: filename='" + invoiceName + "'"
       );
       pdfDoc.pipe(fs.createWriteStream(invoicePath));
       pdfDoc.pipe(res);
@@ -210,7 +208,7 @@ exports.getInvoice = (req, res, next) => {
       pdfDoc.fontSize(26).text("Invoice", {
         underline: true,
       });
-      pdfDoc.text("-----------------------");
+      pdfDoc.text("--------------------");
       let totalPrice = 0;
       order.products.forEach((prod) => {
         totalPrice += prod.quantity * prod.product.price;
@@ -226,17 +224,17 @@ exports.getInvoice = (req, res, next) => {
           );
       });
       pdfDoc.text("---");
-      pdfDoc.fontSize(20).text("Total Price: $" + totalPrice);
+      pdfDoc.text("Total Price: $" + totalPrice);
 
       pdfDoc.end();
       // fs.readFile(invoicePath, (err, data) => {
       //   if (err) {
       //     return next(err);
       //   }
-      //   res.setHeader('Content-Type', 'application/pdf');
+      //   res.setHeader("Content-Type", "application/pdf");
       //   res.setHeader(
-      //     'Content-Disposition',
-      //     'inline; filename="' + invoiceName + '"'
+      //     "Content-Disposition",
+      //     "inline: filename='" + invoiceName + "'"
       //   );
       //   res.send(data);
       // });
@@ -244,5 +242,7 @@ exports.getInvoice = (req, res, next) => {
 
       // file.pipe(res);
     })
-    .catch((err) => next(err));
+    .catch((err) => {
+      next(err);
+    });
 };

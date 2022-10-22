@@ -13,12 +13,12 @@ const errorController = require("./controllers/error");
 const User = require("./models/user");
 
 const MONGODB_URI =
-  "mongodb+srv://phamhophi05:Phi1206Aki@nodejscluster0.yppfjp3.mongodb.net/shop?retryWrites=true&w=majority";
+  "mongodb+srv://phamhophi05:Phi1206Aki@nodejscluster0.yppfjp3.mongodb.net/shop";
 
 const app = express();
 const store = new MongoDBStore({
   uri: MONGODB_URI,
-  collection: "sessions",
+  collection: "session",
 });
 const csrfProtection = csrf();
 
@@ -27,11 +27,11 @@ const fileStorage = multer.diskStorage({
     cb(null, "images");
   },
   filename: (req, file, cb) => {
-    cb(null, new Date().toISOString() + "-" + file.originalname);
+    cb(null, file.filename + "-" + file.originalname);
   },
 });
 
-const fileFilter = (req, file, cb) => {
+const fileFilter = (res, file, cb) => {
   if (
     file.mimetype === "image/png" ||
     file.mimetype === "image/jpg" ||
@@ -46,14 +46,12 @@ const fileFilter = (req, file, cb) => {
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-const adminRoutes = require("./routes/admin");
+const adminData = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(
-  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
-);
+app.use(multer({ storage: fileStorage }).single("image"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
@@ -74,12 +72,13 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  // throw new Error('Sync Dummy');
+  // throw new Error("Sync Dummy");
   if (!req.session.user) {
     return next();
   }
   User.findById(req.session.user._id)
     .then((user) => {
+      // throw new Error("Dummy");
       if (!user) {
         return next();
       }
@@ -91,17 +90,17 @@ app.use((req, res, next) => {
     });
 });
 
-app.use("/admin", adminRoutes);
+app.use("/admin", adminData);
 app.use(shopRoutes);
 app.use(authRoutes);
 
-app.get("/500", errorController.get500);
+app.use("/500", errorController.get500);
 
 app.use(errorController.get404);
 
 app.use((error, req, res, next) => {
   // res.status(error.httpStatusCode).render(...);
-  // res.redirect('/500');
+  // res.redirect("/500");
   res.status(500).render("500", {
     pageTitle: "Error!",
     path: "/500",
